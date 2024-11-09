@@ -322,6 +322,7 @@ require('lazy').setup {
         vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
         vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
         vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
+        -- vim.keymap.set('n', '<leader>sp', require('telescope.builtin').registers, { desc = '[S]earch [S]tored Registers' })
 
         -- Updated Remaps
         local extension = require('telescope').extensions
@@ -453,7 +454,7 @@ require('lazy').setup {
     --  Uncomment any of the lines below to enable them (you will need to restart nvim).
     --
     -- require 'kickstart.plugins.debug',
-    -- require 'kickstart.plugins.indent_line',
+    require 'kickstart.plugins.indent_line',
     -- require 'kickstart.plugins.lint',
     require 'kickstart.plugins.autopairs',
     require 'kickstart.plugins.neo-tree',
@@ -465,6 +466,15 @@ require('lazy').setup {
     --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
     --    For additional information, see `:help lazy.nvim-lazy.nvim-structuring-your-plugins`
     { import = 'custom.plugins' },
+    -- Add the Nightfox colorscheme plugin
+    {
+      'EdenEast/nightfox.nvim',
+    }, -- lazy
+
+    {
+      'mg979/vim-visual-multi',
+      branch = 'master',
+    },
   },
   change_detection = {
     notify = false,
@@ -497,3 +507,30 @@ require('lazy').setup {
 -- })
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
+
+--- Set by manikuttan
+vim.api.nvim_set_keymap('n', 'G', 'Gzz', { noremap = true })
+vim.api.nvim_set_keymap('n', 'N', 'Nzz', { noremap = true })
+vim.api.nvim_set_keymap('n', '.', 'f.l', { noremap = true })
+-- Use indentation for folding
+-- Set foldmethod to 'manual' to prevent automatic folding
+vim.o.foldmethod = 'indent'
+
+-- Set foldlevel to a large number to ensure all folds are unfolded
+vim.o.foldlevel = 99
+
+-- Map <C-z> to undo in Normal and Insert mode
+vim.api.nvim_set_keymap('n', '<C-z>', 'u', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('i', '<C-z>', '<Esc>u', { noremap = true, silent = true })
+
+-- Map <C-Z> to redo in Normal and Insert mode
+vim.api.nvim_set_keymap('n', '<C-Z>', '<C-r>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('i', '<C-Z>', '<Esc><C-r>', { noremap = true, silent = true })
+
+-- Map <leader>o to 'o' followed by <Esc> in Normal mode
+vim.api.nvim_set_keymap('n', '<leader>o', 'o<Esc>', { noremap = true, silent = true })
+
+-- Map <leader>o to 'o' followed by <Esc> in Insert mode (to mimic the same behavior)
+vim.api.nvim_set_keymap('i', '<leader>o', '<Esc>o', { noremap = true, silent = true })
+-- Map <leader>O to 'O' followed by <Esc> in Normal mode (to select all text)
+vim.api.nvim_set_keymap('n', '<C-a>', 'ggVG', { noremap = true, silent = true })

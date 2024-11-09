@@ -63,6 +63,9 @@ return { -- LSP Configuration & Plugins
         -- Find references for the word under your cursor.
         map('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
 
+        -- added by manikuttan
+        map('gb', '<C-o>', '[G]o [B]ack')
+
         -- Jump to the implementation of the word under your cursor.
         --  Useful when your language has ways of declaring types without an actual implementation.
         map('gI', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')

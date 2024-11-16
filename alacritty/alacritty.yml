@@ -10,11 +10,9 @@ window:
   decorations: buttonless
 
 font:
-  normal:
-    family: "FiraCode Nerd Font"
-    style: Regular
-  size: 16.0
-  use_thin_storkes: true
+  family: "JtBrainsMono Nerd Font"
+  style: Thin Italic
+  size: 12  # Adjust the font size as needed
 
 import:
     - ~/.config/alacritty/catppuccin/catppuccin-mocha.yml

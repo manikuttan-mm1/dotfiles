@@ -80,6 +80,9 @@ vim.opt.autoindent = true
 vim.opt.hlsearch = true
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
+-- Set the GUI font for Neovim or Vim
+vim.opt.guifont = 'JetBrainsMono Nerd Font:style=Thin Italic:h12'
+
 -- Diagnostic keymaps
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous [D]iagnostic message' })
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next [D]iagnostic message' })
@@ -405,27 +408,34 @@ require('lazy').setup {
         },
       },
     },
-    { -- You can easily change to a different colorscheme.
-      -- Change the name of the colorscheme plugin below, and then
-      -- change the command in the config to whatever the name of that colorscheme is.
-      --
-      -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
+    -- Catppuccin colorscheme configuration
+    {
       'catppuccin/nvim',
       name = 'catppuccin',
       lazy = false,
-      priority = 1000, -- Make sure to load this before all the other start plugins.
+      priority = 1000, -- Load this before other start plugins
       opts = {
-        transparent_background = true,
+        -- transparent_background = t"::rue, -- Enable transparent background for Catppuccin
+        transparent_background = false, -- Enable transparent background for Catppuccin
       },
       init = function()
-        -- Load the colorscheme here.
+        -- Default colorscheme is catppuccin
         vim.cmd.colorscheme 'catppuccin'
-
-        -- You can configure highlights by doing something like:
-        -- vim.cmd.hi 'Comment gui=none'
       end,
     },
 
+    -- Dracula colorscheme configuration
+    {
+      'Mofiqul/dracula.nvim',
+      lazy = true, -- Load on demand
+      opts = {
+        transparent_bg = true, -- Enable transparent background for Dracula
+      },
+      init = function()
+        -- Load Dracula colorscheme by calling: `vim.cmd.colorscheme 'dracula'`
+        -- If you want to set this as the default, replace the `vim.cmd.colorscheme 'catppuccin'` above
+      end,
+    },
     -- Highlight todo, notes, etc in comments
     -- TODO:
     {
@@ -475,6 +485,14 @@ require('lazy').setup {
       'mg979/vim-visual-multi',
       branch = 'master',
     },
+    {
+      'jiaoshijie/undotree',
+      dependencies = 'nvim-lua/plenary.nvim',
+      config = true,
+      keys = { -- load the plugin only when using it's keybinding:
+        { '<leader>u', "<cmd>lua require('undotree').toggle()<cr>" },
+      },
+    },
   },
   change_detection = {
     notify = false,
@@ -519,13 +537,16 @@ vim.o.foldmethod = 'indent'
 -- Set foldlevel to a large number to ensure all folds are unfolded
 vim.o.foldlevel = 99
 
--- Map <C-z> to undo in Normal and Insert mode
+-- Disable default suspend action
+vim.api.nvim_set_keymap('', '<C-z>', '<Nop>', { noremap = true, silent = true })
+
+-- Map <C-z> for undo in Normal and Insert mode
 vim.api.nvim_set_keymap('n', '<C-z>', 'u', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('i', '<C-z>', '<Esc>u', { noremap = true, silent = true })
 
--- Map <C-Z> to redo in Normal and Insert mode
-vim.api.nvim_set_keymap('n', '<C-Z>', '<C-r>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('i', '<C-Z>', '<Esc><C-r>', { noremap = true, silent = true })
+-- Map <C-S-z> (Control + Shift + Z) for redo in Normal and Insert mode
+vim.api.nvim_set_keymap('n', '<C-S-z>', '<C-r>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('i', '<C-S-z>', '<Esc><C-r>', { noremap = true, silent = true })
 
 -- Map <leader>o to 'o' followed by <Esc> in Normal mode
 vim.api.nvim_set_keymap('n', '<leader>o', 'o<Esc>', { noremap = true, silent = true })
@@ -534,3 +555,64 @@ vim.api.nvim_set_keymap('n', '<leader>o', 'o<Esc>', { noremap = true, silent = t
 vim.api.nvim_set_keymap('i', '<leader>o', '<Esc>o', { noremap = true, silent = true })
 -- Map <leader>O to 'O' followed by <Esc> in Normal mode (to select all text)
 vim.api.nvim_set_keymap('n', '<C-a>', 'ggVG', { noremap = true, silent = true })
+-- Map '*' to search for the word under the cursor without moving the cursor position
+vim.api.nvim_set_keymap('n', '*', ':keepjumps normal! mi*`i<CR>', { noremap = true, silent = true })
+
+-- NOP arrow keys
+vim.api.nvim_set_keymap('n', '<Up>', '<Nop>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<Down>', '<Nop>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<Left>', '<Nop>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<Right>', '<Nop>', { noremap = true, silent = true })
+
+-- For init.lua (Lua-based config)
+vim.api.nvim_set_keymap('n', '<Leader>90', [[:lua vim.cmd('vertical resize ' .. math.floor(vim.o.columns * 0.9))<CR>]], { noremap = true, silent = true })
+
+local auto_resize_enabled = false
+local autocmd_id = nil
+
+-- Function to resize the current window to 90%
+local function resize_current_to_90()
+  vim.cmd('vertical resize ' .. math.floor(vim.o.columns * 0.9))
+end
+
+-- Function to make all windows equal width
+local function make_windows_equal()
+  vim.cmd 'wincmd ='
+end
+
+-- Function to enable auto-resizing
+local function enable_auto_resize()
+  if not auto_resize_enabled then
+    autocmd_id = vim.api.nvim_create_autocmd('WinEnter', {
+      pattern = '*',
+      callback = resize_current_to_90,
+      desc = 'Automatically resize current window to 90% width on focus',
+    })
+    auto_resize_enabled = true
+    resize_current_to_90() -- Ensure the current window is resized immediately
+    print 'Auto-resize enabled'
+  end
+end
+
+-- Function to disable auto-resizing
+local function disable_auto_resize()
+  if auto_resize_enabled and autocmd_id then
+    vim.api.nvim_del_autocmd(autocmd_id)
+    autocmd_id = nil
+    auto_resize_enabled = false
+    make_windows_equal() -- Reset all windows to equal width
+    print 'Auto-resize disabled'
+  end
+end
+
+-- Function to toggle auto-resizing
+_G.toggle_auto_resize = function()
+  if auto_resize_enabled then
+    disable_auto_resize()
+  else
+    enable_auto_resize()
+  end
+end
+
+-- Key binding to toggle the feature
+vim.api.nvim_set_keymap('n', '<Leader>ar', ':lua toggle_auto_resize()<CR>', { noremap = true, silent = true })

@@ -24,7 +24,6 @@ vim.opt.mouse = 'a'
 -- Don't show the mode, since it's already in the status line
 vim.opt.showmode = false
 
--- Sync clipboard between OS and Neovim.
 --  Remove this option if you want your OS clipboard to remain independent.
 --  See `:help 'clipboard'`
 vim.opt.clipboard = 'unnamedplus'
@@ -408,6 +407,8 @@ require('lazy').setup {
         },
       },
     },
+    -- setup must be called before loading
+    { 'rebelot/kanagawa.nvim' },
     -- Catppuccin colorscheme configuration
     {
       'catppuccin/nvim',
@@ -418,24 +419,31 @@ require('lazy').setup {
         -- transparent_background = t"::rue, -- Enable transparent background for Catppuccin
         transparent_background = false, -- Enable transparent background for Catppuccin
       },
-      init = function()
-        -- Default colorscheme is catppuccin
-        vim.cmd.colorscheme 'catppuccin'
-      end,
+      -- init = function()
+      --   -- Default colorscheme is catppuccin
+      --   -- vim.cmd.colorscheme 'catppuccin'
+      -- end,
     },
 
     -- Dracula colorscheme configuration
     {
       'Mofiqul/dracula.nvim',
-      lazy = true, -- Load on demand
+      lazy = false,
+      priority = 1000, -- Load this before other start plugins
       opts = {
-        transparent_bg = true, -- Enable transparent background for Dracula
+        -- transparent_bg = true, -- Enable transparent background for Dracula
+        transparent_bg = false, -- Enable transparent background for Dracula
       },
       init = function()
         -- Load Dracula colorscheme by calling: `vim.cmd.colorscheme 'dracula'`
-        -- If you want to set this as the default, replace the `vim.cmd.colorscheme 'catppuccin'` above
+        vim.cmd.colorscheme 'dracula'
       end,
     },
+    -- Add Gruvbox theme
+    { 'morhetz/gruvbox', lazy = false, priority = 1000 }, -- Lazy-load disabled, so it loads on startup
+
+    -- Add TokyoNight theme
+    { 'folke/tokyonight.nvim', lazy = false, priority = 1000 },
     -- Highlight todo, notes, etc in comments
     -- TODO:
     {
@@ -454,7 +462,7 @@ require('lazy').setup {
         require('copilot').setup {}
       end,
     },
-    -- The following two comments only work if you have downloaded the kickstart repo, not just copy pasted the
+    -- The follow  ing two comments only work if you have downloaded the kickstart repo, not just copy pasted the
     -- init.lua. If you want these files, they are in the repository, so you can just download them and
     -- place them in the correct locations.
 
@@ -493,6 +501,46 @@ require('lazy').setup {
         { '<leader>u', "<cmd>lua require('undotree').toggle()<cr>" },
       },
     },
+    -- lazy
+    {
+      'askfiy/visual_studio_code',
+      priority = 100,
+      config = function()
+        require('visual_studio_code').setup {
+          mode = 'light', -- `dark` or `light`
+          preset = true, -- Load all color schemes
+          transparent = false, -- Background transparency
+          expands = {
+            hop = true,
+            dbui = true,
+            lazy = true,
+            aerial = true,
+            null_ls = true,
+            nvim_cmp = true,
+            gitsigns = true,
+            which_key = true,
+            nvim_tree = true,
+            lspconfig = true,
+            telescope = true,
+            bufferline = true,
+            nvim_navic = true,
+            nvim_notify = true,
+            vim_illuminate = true,
+            nvim_treesitter = true,
+            nvim_ts_rainbow = true,
+            nvim_scrollview = true,
+            nvim_ts_rainbow2 = true,
+            indent_blankline = true,
+            vim_visual_multi = true,
+          },
+          hooks = {
+            before = function(conf, colors, utils) end,
+            after = function(conf, colors, utils) end,
+          },
+        }
+        -- vim.cmd [[colorscheme visual_studio_code]]
+      end,
+    },
   },
   change_detection = {
     notify = false,
@@ -530,6 +578,7 @@ require('lazy').setup {
 vim.api.nvim_set_keymap('n', 'G', 'Gzz', { noremap = true })
 vim.api.nvim_set_keymap('n', 'N', 'Nzz', { noremap = true })
 vim.api.nvim_set_keymap('n', '.', 'f.l', { noremap = true })
+vim.api.nvim_set_keymap('n', '?', '.', { noremap = true })
 -- Use indentation for folding
 -- Set foldmethod to 'manual' to prevent automatic folding
 vim.o.foldmethod = 'indent'
@@ -563,6 +612,11 @@ vim.api.nvim_set_keymap('n', '<Up>', '<Nop>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<Down>', '<Nop>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<Left>', '<Nop>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<Right>', '<Nop>', { noremap = true, silent = true })
+
+-- vim.api.nvim_set_keymap('n', '<C-c><C-c>', ':qa!<CR>', { noremap = true, silent = true })
+-- vim.api.nvim_set_keymap('n', '/', '/\\v', { noremap = true, silent = false })
+vim.api.nvim_set_keymap('n', 'H', '^', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', 'L', '$', { noremap = true, silent = true })
 
 -- For init.lua (Lua-based config)
 vim.api.nvim_set_keymap('n', '<Leader>90', [[:lua vim.cmd('vertical resize ' .. math.floor(vim.o.columns * 0.9))<CR>]], { noremap = true, silent = true })
@@ -616,3 +670,9 @@ end
 
 -- Key binding to toggle the feature
 vim.api.nvim_set_keymap('n', '<Leader>ar', ':lua toggle_auto_resize()<CR>', { noremap = true, silent = true })
+
+-- always enable spell check
+vim.opt.spell = true
+
+-- map Ctrl + / () to gcc
+vim.api.nvim_set_keymap('n', '<C-/>', 'gcc', { noremap = true, silent = true })

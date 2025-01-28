@@ -47,7 +47,7 @@ for fav in "${FAVORITES[@]}"; do
     # If no icon found, use fallback mapping
     if [ -z "$icon" ]; then
         case "$fav" in
-            "brave") icon="/home/manikuttan/.config/scripts/brave.png" ;;
+            "brave") icon="/home/manikuttan/.config/scripts/spotlight_search/brave.png" ;;
             "code") icon="visual-studio-code" ;;
             "cursor") icon="cursor-editor" ;;
             "sublime") icon="sublime-text" ;;
@@ -55,8 +55,8 @@ for fav in "${FAVORITES[@]}"; do
             "alacritty") icon="Alacritty" ;;
             "postman") icon="postman" ;;
             "calculator") icon="gnome-calculator" ;;
-            "keka-login") icon="/home/manikuttan/.config/scripts/icons8-url-100.png" ;;
-            "chatgpt") icon="/home/manikuttan/.config/scripts/icons8-url-100.png" ;;
+            "keka-login") icon="/home/manikuttan/.config/scripts/spotlight_search/icons8-url-100.png" ;;
+            "chatgpt") icon="/home/manikuttan/.config/scripts/spotlight_search/icons8-url-100.png" ;;
             *) icon="application" ;;
         esac
     fi

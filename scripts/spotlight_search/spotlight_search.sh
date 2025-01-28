@@ -73,24 +73,25 @@ done
 # Get list of applications and combine with favorites more efficiently
 SNAP_APPS=$(find /snap/bin -type f -executable 2>/dev/null | xargs -I {} basename {} | tr '[:upper:]' '[:lower:]' | \
     while read -r name; do
-        # Only include if not in favorites
+        # Only include if not in favorites and not already seen
         if [[ ! " ${FAVORITES_LOWER[@]} " =~ " ${name} " ]]; then
             echo "$name"
         fi
-    done)
+    done | sort -u)  # Add sort -u to remove duplicates
 
 # Optimize application listing by using cached desktop files
 APPS=$(echo "$DESKTOP_FILES_CACHE" | \
        xargs grep -l "^Type=Application" 2>/dev/null | \
+       sort -u | \  # Add sort -u to remove duplicate desktop files
        while IFS= read -r desktop_file; do
            icon=$(awk -F= '/^Icon=/{print $2; exit}' "$desktop_file")
            name=$(basename "$desktop_file" .desktop)
            name=$(echo "${name%%_*}" | tr '[:upper:]' '[:lower:]')
            [ ! " ${FAVORITES_LOWER[*]} " = *" ${name} "* ] && \
                echo "$name\0icon\x1f${icon:-application}"
-       done)
+       done | sort -u -t $'\0' -k1,1)  # Sort and remove duplicates based on app name
 
-# Combine items (favorites will only appear once)
+# Combine items (using awk to ensure uniqueness based on the application name)
 ALL_ITEMS=$(printf "%s\n%s\n%s" \
     "$FAVORITES_WITH_ICONS" \
     "$(printf "%s\0icon\x1fapplication\n" "$SNAP_APPS")" \

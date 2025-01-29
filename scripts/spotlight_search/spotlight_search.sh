@@ -275,20 +275,22 @@ if [ -n "${INPUT}" ]; then
             suggestions=$(curl -s "http://suggestqueries.google.com/complete/search?output=firefox&q=$(echo "${INPUT}" | jq -sRr @uri)" | jq -r '.[1][]' | sed 's/^/🔍 /')
         fi
         
-        # Search for files matching input in home directory
-        file_results=$(find ~/ -iname "*${INPUT}*" -type f 2>/dev/null | head -n 50)
-        # Append file results to suggestions
-        if [ -n "$file_results" ]; then
-            while IFS= read -r line; do
-                if [[ "$line" =~ \.(jpg|jpeg|png|gif|bmp|svg)$ ]]; then
-                    # Add newline only if suggestions is not empty
-                    [ -n "$suggestions" ] && suggestions+=$'\n'
-                    suggestions+="🖼️ $(basename "$line") | ~/${line#$HOME/}"
-                else
-                    [ -n "$suggestions" ] && suggestions+=$'\n'
-                    suggestions+="📄 $(basename "$line") | ~/${line#$HOME/}"
-                fi
-            done <<< "$file_results"
+        # Search for files matching input in home directory only if input contains a file extension
+        if [[ "$INPUT" =~ \..+ ]]; then
+            file_results=$(find ~/ -iname "*${INPUT}*" -type f 2>/dev/null | head -n 50)
+            # Append file results to suggestions
+            if [ -n "$file_results" ]; then
+                while IFS= read -r line; do
+                    if [[ "$line" =~ \.(jpg|jpeg|png|gif|bmp|svg)$ ]]; then
+                        # Add newline only if suggestions is not empty
+                        [ -n "$suggestions" ] && suggestions+=$'\n'
+                        suggestions+="🖼️ $(basename "$line") | ~/${line#$HOME/}"
+                    else
+                        [ -n "$suggestions" ] && suggestions+=$'\n'
+                        suggestions+="📄 $(basename "$line") | ~/${line#$HOME/}"
+                    fi
+                done <<< "$file_results"
+            fi
         fi
 
         # If there are suggestions, show them in rofi
